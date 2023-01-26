@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Sofia+Sans&display=swap');
+body ,h2 {
+    font-family: 'Sofia Sans', sans-serif;
+}
+
+h2{
+    font-weight: 700;
+}
+article h2{
+    background-color: #bd9dea;
+    color: white;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+aside h2{
+    background-color: #f2c76e;
+    color: white;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+/*404 page*/
+.detail404 {
+    background-color: #ea7186;
+    color: white;
+    text-align: center;
+    padding: 10%;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 30px;
+}

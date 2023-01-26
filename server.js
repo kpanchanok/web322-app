@@ -46,7 +46,7 @@ app.get("/categories", function(req,res){
 });
 
 app.use((req, res) => {
-    res.status(404).send("404 Page Not Found");
+    res.status(404).sendFile(path.join(__dirname,"/views/404page.html"));
 });
 
 // setup http server to listen on HTTP_PORT
