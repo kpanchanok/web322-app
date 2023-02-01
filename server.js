@@ -1,3 +1,15 @@
+/*********************************************************************************
+*  WEB322 – Assignment 02
+*  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part *  of this assignment has been copied manually or electronically from any other source 
+*  (including 3rd party web sites) or distributed to other students.
+* 
+*  Name: Panchanok Kaewchinda Student ID: 145443214 Date: 2/1/2023
+*
+*  Online (Cyclic) Link: https://bright-scarf-dove.cyclic.app
+*
+********************************************************************************/ 
+
+
 var express = require("express");
 var app = express();
 
