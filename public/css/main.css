@@ -20,6 +20,22 @@ aside h2{
     padding: 10px;
 }
 
+/*form*/
+form {
+    margin: 20px;
+}
+
+form legend{
+    background-color: #6bc2ea;
+    color: white;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+form input[type=submit]{
+    background-color: #04AA6D;
+}
+
 /*404 page*/
 .detail404 {
     background-color: #ea7186;
