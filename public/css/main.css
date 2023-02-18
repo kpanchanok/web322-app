@@ -33,7 +33,11 @@ form legend{
 }
 
 form input[type=submit]{
-    background-color: #04AA6D;
+    background-color: #4ec99c;
+}
+
+form input:hover[type=submit]{
+    background-color: #038052;
 }
 
 /*404 page*/
