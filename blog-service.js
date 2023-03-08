@@ -68,6 +68,11 @@ module.exports.addPost = function (postData){
         //This will have the effect of setting the first new post's id to: 31, and so on.
         postData.id = posts.lenght + 1
 
+        var year = new Date().getFullYear()
+        var month = new Date().getMonth()
+        var day = new Date().getDay()
+        postData.postDate = `${year}-${month}-${day}`
+
         posts.push(postData);
         resolve(postData);
     })
@@ -87,7 +92,6 @@ module.exports.getPostsByCategory = function (category){
     })
 }
 
-//not finish
 module.exports.getPostsbyMinDate = function (minDateStr){
     return new Promise((resolve,reject) => {
         let filteredDate = posts.filter(post=> (new Date(post.postDate)) >= (new Date(minDateStr)));
@@ -112,5 +116,15 @@ module.exports.getPostById = function (id){
         else {
             reject("No results returned");
         }
+    })
+}
+
+module.exports.getPublishedPostsByCategory = function(category){
+    return new Promise ((resolve, reject) => {
+        var publish = posts.filter(post => post.published == true && post.category == category);
+        if (publish.length == 0){
+            reject("No results returned");
+        }
+        resolve(publish);
     })
 }

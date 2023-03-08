@@ -40,6 +40,18 @@ form input:hover[type=submit]{
     background-color: #038052;
 }
 
+/*table*/
+.table thead tr th{
+    font-size: larger;
+    color:#038052;
+    border-bottom: 2px solid #038052;
+}
+
+.table tbody tr td{
+    border-top:1px solid rgb(132, 185, 151);
+}
+
+
 /*404 page*/
 .detail404 {
     background-color: #ea7186;
