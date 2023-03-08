@@ -84,54 +84,6 @@ app.get("/about", function(req,res){
     res.render('about');
 });
 
-app.get('/blog', async (req, res) => {
-
-    // Declare an object to store properties for the view
-    let viewData = {};
-
-    try{
-
-        // declare empty array to hold "post" objects
-        let posts = [];
-
-        // if there's a "category" query, filter the returned posts by category
-        if(req.query.category){
-            // Obtain the published "posts" by category
-            posts = await blogData.getPublishedPostsByCategory(req.query.category);
-        }else{
-            // Obtain the published "posts"
-            posts = await blogData.getPublishedPosts();
-        }
-
-        // sort the published posts by postDate
-        posts.sort((a,b) => new Date(b.postDate) - new Date(a.postDate));
-
-        // get the latest post from the front of the list (element 0)
-        let post = posts[0]; 
-
-        // store the "posts" and "post" data in the viewData object (to be passed to the view)
-        viewData.posts = posts;
-        viewData.post = post;
-
-    }catch(err){
-        viewData.message = "no results";
-    }
-
-    try{
-        // Obtain the full list of "categories"
-        let categories = await blogData.getCategories();
-
-        // store the "categories" data in the viewData object (to be passed to the view)
-        viewData.categories = categories;
-    }catch(err){
-        viewData.categoriesMessage = "no results"
-    }
-
-    // render the "blog" view with all of the data (viewData)
-    res.render("blog", {data: viewData})
-
-});
-
 app.get("/blog/:id", async (req, res) => {
     // Declare an object to store properties for the view
     let viewData = {};
@@ -179,7 +131,6 @@ app.get("/blog/:id", async (req, res) => {
 
     // render the "blog" view with all of the data (viewData)
     res.render("blog", {data: viewData})
-    // res.send(viewData)
 });
 
 app.get("/blog", async (req, res) => {
@@ -224,6 +175,37 @@ app.get("/blog", async (req, res) => {
 
     // render the "blog" view with all of the data (viewData)
     res.render("blog", {data: viewData})
+});
+
+app.get("/posts", function (req,res){
+    //change
+    if (req.query.category) {
+        getPostsByCategory(req.query.category)
+        .then((data) => {
+        res.render("posts", { posts: data });
+        })
+        .catch((err) => {
+        res.render("posts", { message: "no results" });
+        });
+    }
+    else if (req.query.minDate) {
+        getPostsByMinDate(req.query.minDate)
+        .then((data) => {
+        res.render("posts", { posts: data });
+        })
+        .catch((err) => {
+        res.render("posts", { message: "no results" });
+        });
+    }
+    else {
+        blogjs.getAllPosts()
+        .then((data) => {
+        res.render("posts", { posts: data });
+        })
+        .catch((err) => {
+        res.render("posts", { message: "no results" });
+        });
+    }
 });
 
 app.get("/categories", function(req,res){
