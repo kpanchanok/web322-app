@@ -78,7 +78,6 @@ module.exports.addPost = function (postData){
     })
 }
 
-//not finish
 module.exports.getPostsByCategory = function (category){
     return new Promise ((resolve, reject) => {
         let filteredPosts = posts.filter(post=>post.category == category);

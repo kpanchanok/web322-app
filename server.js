@@ -18,7 +18,8 @@ const stripJs = require('strip-js');
 var HTTP_PORT = process.env.PORT || 8080;
 
 var path = require("path");
-var blogjs = require(__dirname + "/blog-service.js");
+//var blogjs = require(__dirname + "/blog-service.js");
+const blogData = require("./blog-service");
 
 const multer = require("multer");
 const cloudinary = require('cloudinary').v2
@@ -26,8 +27,6 @@ const streamifier = require('streamifier');
 const { getPostById, addpost, addPost, getPostsByCategory } = require("./blog-service");
 const { title } = require("process");
 const upload = multer(); // no { storage: storage } since we are not using disk storage
-
-//const blogData = require("./blog-service");
 
 //AS4 handlebars
 app.engine('.hbs', exphbs.engine({ 
@@ -84,48 +83,49 @@ app.get("/about", function(req,res){
     res.render('about');
 });
 
-app.get("/blog/:id", async (req, res) => {
+app.get('/blog/:id', async (req, res) => {
+
     // Declare an object to store properties for the view
     let viewData = {};
 
-    try {
+    try{
 
         // declare empty array to hold "post" objects
         let posts = [];
 
         // if there's a "category" query, filter the returned posts by category
-        if (req.query.category) {
+        if(req.query.category){
             // Obtain the published "posts" by category
-            posts = await getPublishedPostsByCategory(req.query.category);
-        } else {
+            posts = await blogData.getPublishedPostsByCategory(req.query.category);
+        }else{
             // Obtain the published "posts"
-            posts = await getPublishedPosts();
+            posts = await blogData.getPublishedPosts();
         }
 
         // sort the published posts by postDate
-        posts.sort((a, b) => new Date(b.postDate) - new Date(a.postDate));
-
+        posts.sort((a,b) => new Date(b.postDate) - new Date(a.postDate));
+        
         // store the "posts" and "post" data in the viewData object (to be passed to the view)
         viewData.posts = posts;
-    } catch (err) {
+
+    }catch(err){
         viewData.message = "no results";
     }
 
-    try {
+    try{
         // Obtain the post by "id"
-        let post = await getPostById(req.params.id);
-        viewData.post = post[0]
-    } catch (err) {
-        viewData.message = "no results";
+        viewData.post = await blogData.getPostById(req.params.id);
+    }catch(err){
+        viewData.message = "no results"; 
     }
 
-    try {
+    try{
         // Obtain the full list of "categories"
-        let categories = await getCategories();
+        let categories = await blogData.getCategories();
 
         // store the "categories" data in the viewData object (to be passed to the view)
         viewData.categories = categories;
-    } catch (err) {
+    }catch(err){
         viewData.categoriesMessage = "no results"
     }
 
@@ -144,10 +144,10 @@ app.get("/blog", async (req, res) => {
         // if there's a "category" query, filter the returned posts by category
         if (req.query.category) {
             // Obtain the published "posts" by category
-            posts = await getPublishedPostsByCategory(req.query.category);
+            posts = await blogData.getPublishedPostsByCategory(req.query.category);
         } else {
             // Obtain the published "posts"
-            posts = await getPublishedPosts();
+            posts = await blogData.getPublishedPosts();
         }
 
         // sort the published posts by postDate
@@ -165,7 +165,7 @@ app.get("/blog", async (req, res) => {
 
     try {
         // Obtain the full list of "categories"
-        let categories = await getCategories();
+        let categories = await blogData.getCategories();
 
         // store the "categories" data in the viewData object (to be passed to the view)
         viewData.categories = categories;
@@ -198,7 +198,7 @@ app.get("/posts", function (req,res){
         });
     }
     else {
-        blogjs.getAllPosts()
+        blogData.getAllPosts()
         .then((data) => {
         res.render("posts", { posts: data });
         })
@@ -209,7 +209,7 @@ app.get("/posts", function (req,res){
 });
 
 app.get("/categories", function(req,res){
-    blogjs.getCategories().then((data) => {
+    blogData.getCategories().then((data) => {
         res.render('categories', { categories: data });
     }).catch((err) => {
         res.render('categories', {message: "no results"});
@@ -287,7 +287,7 @@ app.use((req, res) => {
 });
 
 // setup http server to listen on HTTP_PORT
-blogjs.initialize().then(() => {
+blogData.initialize().then(() => {
     app.listen(HTTP_PORT, onHttpStart());
 }).catch (() => {
     console.log('promises failed');
