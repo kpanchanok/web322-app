@@ -18,7 +18,6 @@ const stripJs = require('strip-js');
 var HTTP_PORT = process.env.PORT || 8080;
 
 var path = require("path");
-//var blogjs = require(__dirname + "/blog-service.js");
 const blogData = require("./blog-service");
 
 const multer = require("multer");
@@ -27,6 +26,7 @@ const streamifier = require('streamifier');
 const { getPostById, addpost, addPost, getPostsByCategory } = require("./blog-service");
 const { title } = require("process");
 const upload = multer(); // no { storage: storage } since we are not using disk storage
+const Sequelize = require('sequelize');
 
 //AS4 handlebars
 app.engine('.hbs', exphbs.engine({ 
@@ -48,10 +48,18 @@ app.engine('.hbs', exphbs.engine({
         },
         safeHTML: function (context) {
             return stripJs(context);
-        }  
+        },
+        formatDate: function(dateObj){
+            let year = dateObj.getFullYear();
+            let month = (dateObj.getMonth() + 1).toString();
+            let day = dateObj.getDate().toString();
+            return `${year}-${month.padStart(2, '0')}-${day.padStart(2,'0')}`;
+        }         
     }
 }));
 app.set('view engine', '.hbs');
+
+app.use(express.urlencoded({extended: true}));
 
 //Set the cloudinary config
 cloudinary.config({
@@ -182,7 +190,12 @@ app.get("/posts", function (req,res){
     if (req.query.category) {
         getPostsByCategory(req.query.category)
         .then((data) => {
-        res.render("posts", { posts: data });
+            if(data.length > 0){
+                res.render("posts", { posts: data });
+            }
+            else{
+                res.render("posts", { message: "no results" });
+            }
         })
         .catch((err) => {
         res.render("posts", { message: "no results" });
@@ -191,7 +204,12 @@ app.get("/posts", function (req,res){
     else if (req.query.minDate) {
         getPostsByMinDate(req.query.minDate)
         .then((data) => {
-        res.render("posts", { posts: data });
+            if(data.length > 0){
+                res.render("posts", { posts: data });
+            }
+            else{
+                res.render("posts", { message: "no results" });
+            }
         })
         .catch((err) => {
         res.render("posts", { message: "no results" });
@@ -200,7 +218,12 @@ app.get("/posts", function (req,res){
     else {
         blogData.getAllPosts()
         .then((data) => {
-        res.render("posts", { posts: data });
+            if(data.length > 0){
+                res.render("posts", { posts: data });
+            }
+            else{
+                res.render("posts", { message: "no results" });
+            }
         })
         .catch((err) => {
         res.render("posts", { message: "no results" });
@@ -210,7 +233,12 @@ app.get("/posts", function (req,res){
 
 app.get("/categories", function(req,res){
     blogData.getCategories().then((data) => {
-        res.render('categories', { categories: data });
+        if(data.length > 0){
+            res.render('categories', { categories: data });
+        }
+        else{
+            res.render('categories', {message: "no results"});
+        }
     }).catch((err) => {
         res.render('categories', {message: "no results"});
     })
@@ -219,6 +247,18 @@ app.get("/categories", function(req,res){
 app.get("/posts/add", function(req,res){
     res.render('addPost');
 });
+
+app.get("/posts/add", (req, res) => {
+    blogData.getCategories().then((data) => {
+        res.render('addPost',{
+            categories: data
+        })
+    }).catch(() => {
+        res.render('addPost'), {categories: []}
+    })
+    
+  });
+  
 
 app.post('/posts/add',upload.single("featureImage"), function (req, res) {
     let streamUpload = (req) => {
@@ -279,11 +319,36 @@ app.get("/post/:value", (req, res) => {
       });
 });
 
+app.get("/categories/add", (req, res) => {
+    res.render('addCategory');
+});
 
+app.post("/categories/add", (req, res) => {
+    blogData.addCategory(req.body).then(() => {
+        res.redirect('/categories');
+    }).catch(() => {
+        console.log("Unable to Add category")
+    })
+});
+
+app.get("/categories/delete/:id", (req,res) => {
+    blogData.deleteCategoryById(req.params.id).then(() => {
+        res.redirect('/categories');
+    }).catch(() => {
+        res.status(505).send("Unable to Remove Category / Category not found)");
+    })
+});
+
+app.get("/posts/delete/:id", (req,res) => {
+    blogData.deletePostById(req.params.id).then(() => {
+        res.redirect('/post');
+    }).catch((err) => {
+        res.status(505).send("Unable to Remove Post / Post not found)");
+    })
+});
 
 app.use((req, res) => {
     res.status(404).render('404page');
-    //res.status(404).sendFile(path.join(__dirname,"/views/404page.html"));
 });
 
 // setup http server to listen on HTTP_PORT
