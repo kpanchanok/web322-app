@@ -1,9 +1,3 @@
-/*const fs = require("fs");
-const { resolve } = require("path");
-var posts = [];
-var categories =[];
-*/
-
 const Sequelize = require('sequelize');
 var sequelize = new Sequelize('gwnmcosq', 'gwnmcosq', 'Z5lPDH5RlCw_02hETUzIsoSaJMM4Wf62', {
     host: 'ruby.db.elephantsql.com',
